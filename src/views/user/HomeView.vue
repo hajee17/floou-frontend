@@ -24,6 +24,7 @@
           Tanaman hias segar untuk mempercantik ruangan dan menenangkan hati.
         </p>
         <button
+          @click="scrollToProduk"
           class="bg-white text-black font-semibold px-6 py-2 rounded-lg w-max hover:bg-gray-800 transition hover:text-white"
         >
           Beli Sekarang →
@@ -32,7 +33,7 @@
     </section>
 
     <!-- PRODUK -->
-    <section class="px-4 sm:px-8 lg:px-16 pb-12">
+    <section id="produk" class="px-4 sm:px-8 lg:px-16 pb-12">
       <!-- Header -->
       <div class="text-center mb-10">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Tanaman Favorit Pilihan</h2>
@@ -92,5 +93,11 @@ function goToPage(url) {
   if (!url) return
   const pageNumber = new URL(url).searchParams.get('page')
   productStore.fetchPlants({ page: pageNumber })
+}
+function scrollToProduk() {
+  const produkSection = document.getElementById('produk')
+  if (produkSection) {
+    produkSection.scrollIntoView({ behavior: 'smooth' })
+  }
 }
 </script>
