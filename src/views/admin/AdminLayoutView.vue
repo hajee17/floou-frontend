@@ -44,55 +44,55 @@
 </template>
 
 <script setup>
-import { RouterLink, RouterView, useRoute } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import {
   ChartBarIcon,
   ArchiveBoxIcon,
   ShoppingCartIcon,
   TagIcon,
   SparklesIcon,
-  UserGroupIcon,
+  // UserGroupIcon dihapus dari sini karena sudah tidak digunakan
   ArrowRightStartOnRectangleIcon,
-} from "@heroicons/vue/24/outline";
+} from '@heroicons/vue/24/outline'
 
-const authStore = useAuthStore();
-const route = useRoute();
+const authStore = useAuthStore()
+const route = useRoute()
 
 const navigation = [
-  { name: "Dashboard", routeName: "admin-dashboard", path: "/admin/dashboard", icon: ChartBarIcon },
+  { name: 'Dashboard', routeName: 'admin-dashboard', path: '/admin/dashboard', icon: ChartBarIcon },
   {
-    name: "Kelola Produk",
-    routeName: "admin-products",
-    path: "/admin/produk",
+    name: 'Kelola Produk',
+    routeName: 'admin-products',
+    path: '/admin/produk',
     icon: ArchiveBoxIcon,
   },
   {
-    name: "Kelola Pesanan",
-    routeName: "admin-orders",
-    path: "/admin/pesanan",
+    name: 'Kelola Pesanan',
+    routeName: 'admin-orders',
+    path: '/admin/pesanan',
     icon: ShoppingCartIcon,
   },
-  { name: "Kategori", routeName: "admin-categories", path: "/admin/kategori", icon: TagIcon },
+  { name: 'Kategori', routeName: 'admin-categories', path: '/admin/kategori', icon: TagIcon },
   {
-    name: "Tipe Tanaman",
-    routeName: "admin-plant-types",
-    path: "/admin/tipe-tanaman",
+    name: 'Tipe Tanaman',
+    routeName: 'admin-plant-types',
+    path: '/admin/tipe-tanaman',
     icon: SparklesIcon,
   },
-  {
-    name: "Kelola Akun",
-    routeName: "admin-accounts",
-    path: "/admin/kelola-akun",
-    icon: UserGroupIcon,
-  },
-];
+  // {  <-- Objek untuk menu "Kelola Akun" telah dihapus dari array ini
+  //   name: "Kelola Akun",
+  //   routeName: "admin-accounts",
+  //   path: "/admin/kelola-akun",
+  //   icon: UserGroupIcon,
+  // },
+]
 
 const handleLogout = () => {
-  if (confirm("Apakah Anda yakin ingin logout?")) {
-    authStore.logout();
+  if (confirm('Apakah Anda yakin ingin logout?')) {
+    authStore.logout()
   }
-};
+}
 </script>
 
 <style scoped>

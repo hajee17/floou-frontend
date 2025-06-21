@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 text-gray-800">
     <div class="flex justify-between items-center">
       <h1 class="text-3xl font-bold">Kelola Kategori</h1>
       <button
@@ -12,7 +12,7 @@
 
     <div v-if="showForm" class="bg-white p-6 rounded-lg shadow-md mb-6">
       <h2 class="text-xl font-bold mb-4">
-        {{ isEditing ? "Edit Kategori" : "Tambah Kategori Baru" }}
+        {{ isEditing ? 'Edit Kategori' : 'Tambah Kategori Baru' }}
       </h2>
       <form @submit.prevent="handleSubmit">
         <div class="mb-4">
@@ -21,7 +21,7 @@
             v-model="form.name"
             type="text"
             id="name"
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-gray-900 bg-white"
             required
           />
         </div>
@@ -35,7 +35,7 @@
           <button
             type="button"
             @click="closeForm"
-            class="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400"
+            class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
           >
             Batal
           </button>
@@ -43,10 +43,10 @@
       </form>
     </div>
 
-    <div v-if="isLoading" class="text-center">Memuat data...</div>
+    <div v-if="isLoading" class="text-center text-gray-500">Memuat data...</div>
     <div v-else class="bg-white rounded-xl shadow-sm overflow-hidden">
       <table class="w-full text-left text-sm">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100 text-gray-700 font-semibold">
           <tr class="border-b">
             <th class="p-4">ID</th>
             <th class="p-4">Nama</th>
@@ -55,15 +55,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="category in categories" :key="category.id" class="border-b">
+          <tr v-for="category in categories" :key="category.id" class="border-b hover:bg-gray-50">
             <td class="p-4">{{ category.id }}</td>
             <td class="p-4 font-medium">{{ category.name }}</td>
-            <td class="p-4">{{ category.slug }}</td>
+            <td class="p-4 text-gray-600">{{ category.slug }}</td>
             <td class="p-4 text-right">
-              <button @click="openForm(category)" class="text-blue-600 hover:text-blue-900 mr-4">
+              <button @click="openForm(category)" class="text-blue-600 hover:text-blue-800 mr-4">
                 Edit
               </button>
-              <button @click="handleDelete(category.id, category.name)" class="text-red-600 hover:text-red-900">
+              <button
+                @click="handleDelete(category.id, category.name)"
+                class="text-red-600 hover:text-red-800"
+              >
                 Hapus
               </button>
             </td>
@@ -75,62 +78,62 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useProductStore } from "@/stores/product";
-import apiClient from "@/service/api";
+import { ref, onMounted, computed } from 'vue'
+import { useProductStore } from '@/stores/product'
+import apiClient from '@/service/api'
 
-const productStore = useProductStore();
-const categories = computed(() => productStore.categories);
-const isLoading = ref(true);
+const productStore = useProductStore()
+const categories = computed(() => productStore.categories)
+const isLoading = ref(true)
 
-const showForm = ref(false);
-const isEditing = ref(false);
-const form = ref({ id: null, name: "" });
+const showForm = ref(false)
+const isEditing = ref(false)
+const form = ref({ id: null, name: '' })
 
 onMounted(async () => {
-  isLoading.value = true;
-  await productStore.fetchCategories();
-  isLoading.value = false;
-});
+  isLoading.value = true
+  await productStore.fetchCategories()
+  isLoading.value = false
+})
 
 function openForm(category = null) {
   if (category) {
-    isEditing.value = true;
-    form.value = { id: category.id, name: category.name };
+    isEditing.value = true
+    form.value = { id: category.id, name: category.name }
   } else {
-    isEditing.value = false;
-    form.value = { id: null, name: "" };
+    isEditing.value = false
+    form.value = { id: null, name: '' }
   }
-  showForm.value = true;
+  showForm.value = true
 }
 
 function closeForm() {
-  showForm.value = false;
+  showForm.value = false
 }
 
 async function handleSubmit() {
   try {
     if (isEditing.value) {
-      await apiClient.put(`/categories/${form.value.id}`, { name: form.value.name });
+      await apiClient.put(`/categories/${form.value.id}`, { name: form.value.name })
     } else {
-      await apiClient.post("/categories", { name: form.value.name });
+      await apiClient.post('/categories', { name: form.value.name })
     }
-    await productStore.fetchCategories(); // Refresh list
-    closeForm();
+    await productStore.fetchCategories()
+    closeForm()
   } catch (error) {
-    console.error("Gagal menyimpan kategori:", error);
-    alert("Gagal menyimpan kategori.");
+    console.error('Gagal menyimpan kategori:', error)
+    alert('Gagal menyimpan kategori.')
   }
 }
 
 async function handleDelete(id, name) {
   if (confirm(`Apakah Anda yakin ingin menghapus kategori "${name}"?`)) {
     try {
-      await apiClient.delete(`/categories/${id}`);
-      await productStore.fetchCategories(); // Refresh list
+      await apiClient.delete(`/categories/${id}`)
+      await productStore.fetchCategories()
     } catch (error) {
-      console.error("Gagal menghapus kategori:", error);
-      alert("Gagal menghapus kategori. Mungkin kategori ini masih digunakan oleh produk.");
+      console.error('Gagal menghapus kategori:', error)
+      alert('Gagal menghapus kategori. Mungkin kategori ini masih digunakan oleh produk.')
     }
   }
 }

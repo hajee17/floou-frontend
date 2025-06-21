@@ -17,7 +17,8 @@ import ProductFormView from '../views/admin/ProductFormView.vue'
 import OrderManagementView from '../views/admin/OrderManagementView.vue'
 import CategoryManagementView from '../views/admin/CategoryManagementView.vue'
 import PlantTypeManagementView from '../views/admin/PlantTypeManagementView.vue'
-import KelolaAkunView from '../views/admin/KelolaAkunView.vue'
+// Import KelolaAkunView dihapus dari sini
+// import KelolaAkunView from '../views/admin/KelolaAkunView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,7 +27,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/login', name: 'login', component: LoginView, meta: { guestOnly: true } },
     { path: '/register', name: 'register', component: RegisterView, meta: { guestOnly: true } },
-    { path: '/produk/:slug', name: 'product-detail', component: ProductDetailView, props: true },
+    { path: '/produk/:id', name: 'product-detail', component: ProductDetailView, props: true },
     { path: '/keranjang', name: 'cart', component: CartView, meta: { requiresAuth: true } },
     {
       path: '/pesanan',
@@ -61,7 +62,8 @@ const router = createRouter({
         { path: 'pesanan', name: 'admin-orders', component: OrderManagementView },
         { path: 'kategori', name: 'admin-categories', component: CategoryManagementView },
         { path: 'tipe-tanaman', name: 'admin-plant-types', component: PlantTypeManagementView },
-        { path: 'kelola-akun', name: 'admin-accounts', component: KelolaAkunView },
+        // Route untuk 'kelola-akun' telah dihapus dari array children ini
+        // { path: 'kelola-akun', name: 'admin-accounts', component: KelolaAkunView },
       ],
     },
 
