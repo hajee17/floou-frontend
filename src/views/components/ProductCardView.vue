@@ -12,7 +12,9 @@
       <p class="text-green-600 font-bold my-2">
         Rp {{ parseFloat(product.price).toLocaleString('id-ID') }}
       </p>
+
       <button
+        v-if="authStore.isAuthenticated"
         @click="handleAddToCart"
         class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
       >
@@ -26,6 +28,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth' 
 import { PlusIcon } from '@heroicons/vue/24/solid'
 
 const props = defineProps({
@@ -36,6 +39,7 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 function handleAddToCart() {
   cartStore.addItem(props.product, 1)

@@ -45,10 +45,6 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const response = await apiClient.get('/orders', { params })
 
-      // ==================================================================
-      // PERUBAHAN UTAMA DI SINI:
-      // Kita mengambil data dari dalam properti "orders" sesuai struktur API Anda.
-      // ==================================================================
       orders.value = response.data.orders || { data: [], meta: {}, links: {} }
     } catch (e) {
       error.value = 'Gagal memuat riwayat pesanan.'
@@ -95,7 +91,6 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  // ... (fungsi cancelOrder tidak perlu diubah)
   async function cancelOrder(id) {
     isLoading.value = true
     try {

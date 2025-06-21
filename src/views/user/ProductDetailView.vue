@@ -13,7 +13,6 @@
         v-else-if="product"
         class="grid md:grid-cols-2 gap-10 lg:gap-16 bg-white rounded-3xl p-6 shadow-xl"
       >
-        <!-- Gambar Produk -->
         <div>
           <img
             :src="product.imageUrl"
@@ -24,7 +23,6 @@
           />
         </div>
 
-        <!-- Detail Produk -->
         <div>
           <h1 class="text-4xl font-bold text-green-900 mb-3">{{ product.name }}</h1>
 
@@ -48,8 +46,7 @@
 
           <p class="text-sm text-gray-600 mb-4 font-medium">Stok tersedia: {{ product.stock }}</p>
 
-          <!-- Input dan Tombol -->
-          <div class="flex items-center gap-4">
+          <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
             <input
               type="number"
               v-model.number="quantity"
@@ -66,7 +63,16 @@
             </button>
           </div>
 
-          <p v-if="quantity > product.stock" class="text-red-600 text-sm mt-2">
+          <div v-else>
+            <RouterLink
+              to="/login"
+              class="block w-full text-center bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Login Terlebih Dahulu
+            </RouterLink>
+          </div>
+
+          <p v-if="quantity > product.stock && authStore.isAuthenticated" class="text-red-600 text-sm mt-2">
             Jumlah melebihi stok yang tersedia.
           </p>
         </div>
@@ -77,20 +83,22 @@
 
 <script setup>
 import { onMounted, computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const productStore = useProductStore()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 const product = computed(() => productStore.plant)
 const quantity = ref(1)
 const productImage = ref(null)
 
 function onImageError(event) {
-  event.target.src = '/default-image.jpg' // default image in public folder
+  event.target.src = '/default-image.jpg'
 }
 
 onMounted(() => {

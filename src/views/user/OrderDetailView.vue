@@ -46,12 +46,23 @@
           </p>
         </div>
         <div>
-          <h2 class="text-lg font-semibold mb-2">Info Pembayaran</h2>
-          <p class="text-gray-800">Metode: <span class="font-medium">QRIS (Contoh)</span></p>
-          <p class="text-gray-900 font-bold mt-1">
-            Total: Rp {{ parseFloat(order.total_price).toLocaleString('id-ID') }}
+        <h2 class="text-lg font-semibold mb-2">Info Pembayaran</h2>
+        <p class="text-gray-800">Metode: <span class="font-medium">QRIS</span></p>
+        <p class="text-gray-900 font-bold mt-1">
+          Total: Rp {{ parseFloat(order.total_price).toLocaleString('id-ID') }}
+        </p>
+
+        <div v-if="order.status === 'pending'" class="mt-4 border-t pt-4">
+          <p class="text-sm font-semibold text-gray-800 mb-2">
+              Silakan pindai kode di bawah ini untuk membayar:
+          </p>
+          <img src="/images/qris-toko.jpg" alt="QRIS Pembayaran" class="w-48 h-48 border rounded-md" />
+          <p class="text-xs text-gray-600 mt-2">
+              PENTING: Mohon transfer sesuai jumlah total di atas.
           </p>
         </div>
+        </div>
+
       </div>
 
       <hr class="my-6" />

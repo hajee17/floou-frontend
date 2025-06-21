@@ -1,6 +1,5 @@
 <template>
   <div class="bg-[#F9F5F2] min-h-screen">
-    <!-- HERO IMAGE FULL WIDTH WITH TEXT OVERLAY -->
     <section class="relative w-full h-[500px] md:h-[600px] rounded-b-3xl overflow-hidden mb-12">
       <!-- Background Gambar -->
       <img
