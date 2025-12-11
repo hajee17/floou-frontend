@@ -12,60 +12,62 @@
       <p class="text-gray-600 text-base sm:text-lg">Anda belum memiliki pesanan.</p>
     </div>
 
-    <!-- Desktop Table View -->
-    <div v-else class="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
-              Order ID
-            </th>
-            <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
-              Tanggal
-            </th>
-            <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
-              Total
-            </th>
-            <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
-              Status
-            </th>
-            <th class="px-6 py-3 text-right font-semibold text-gray-700 uppercase tracking-wide">
-              Aksi
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="order in orders" :key="order.id">
-            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">#{{ order.id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-800">
-              {{ new Date(order.created_at).toLocaleDateString('id-ID') }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-800">
-              Rp {{ parseFloat(order.total_price).toLocaleString('id-ID') }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                class="px-2 inline-flex text-xs font-semibold leading-5 rounded-full"
-                :class="statusClass(order.status)"
-              >
-                {{ order.status }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right">
-              <RouterLink
-                :to="`/pesanan/${order.id}`"
-                class="text-green-600 hover:text-green-800 font-medium"
-              >
-                Lihat Detail
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Order List - Desktop & Mobile -->
+    <template v-else>
+      <!-- Desktop Table View -->
+      <div class="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
+                Order ID
+              </th>
+              <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
+                Tanggal
+              </th>
+              <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
+                Total
+              </th>
+              <th class="px-6 py-3 text-left font-semibold text-gray-700 uppercase tracking-wide">
+                Status
+              </th>
+              <th class="px-6 py-3 text-right font-semibold text-gray-700 uppercase tracking-wide">
+                Aksi
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="order in orders" :key="order.id">
+              <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">#{{ order.id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-gray-800">
+                {{ new Date(order.created_at).toLocaleDateString('id-ID') }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-gray-800">
+                Rp {{ parseFloat(order.total_price).toLocaleString('id-ID') }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="px-2 inline-flex text-xs font-semibold leading-5 rounded-full"
+                  :class="statusClass(order.status)"
+                >
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right">
+                <RouterLink
+                  :to="`/pesanan/${order.id}`"
+                  class="text-green-600 hover:text-green-800 font-medium"
+                >
+                  Lihat Detail
+                </RouterLink>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Mobile Card View -->
-    <div v-else class="md:hidden space-y-4">
+      <!-- Mobile Card View -->
+      <div class="md:hidden space-y-4">
       <div v-for="order in orders" :key="order.id" class="bg-white rounded-lg shadow-md p-4">
         <div class="flex justify-between items-start mb-3">
           <div>
@@ -103,6 +105,7 @@
         </RouterLink>
       </div>
     </div>
+    </template>
   </div>
 </template>
 

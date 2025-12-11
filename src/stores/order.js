@@ -47,13 +47,7 @@ export const useOrderStore = defineStore('order', () => {
     error.value = null
     try {
       const response = await apiClient.get('/orders', { params })
-
-      console.log('Orders API Response:', response.data)
-      console.log('Orders data:', response.data.orders)
-
       orders.value = response.data.orders || { data: [], meta: {}, links: {} }
-
-      console.log('Orders stored:', orders.value)
     } catch (e) {
       error.value = 'Gagal memuat riwayat pesanan.'
       console.error('Fetch Orders Error:', e.response)
