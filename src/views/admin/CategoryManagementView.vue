@@ -80,7 +80,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useProductStore } from '@/stores/product'
-import apiClient from '@/service/api'
 
 const productStore = useProductStore()
 const categories = computed(() => productStore.categories)
@@ -114,26 +113,24 @@ function closeForm() {
 async function handleSubmit() {
   try {
     if (isEditing.value) {
-      await apiClient.put(`/categories/${form.value.id}`, { name: form.value.name })
+      await productStore.updateCategory(form.value.id, { name: form.value.name })
     } else {
-      await apiClient.post('/categories', { name: form.value.name })
+      await productStore.createCategory({ name: form.value.name })
     }
-    await productStore.fetchCategories()
     closeForm()
   } catch (error) {
     console.error('Gagal menyimpan kategori:', error)
-    alert('Gagal menyimpan kategori.')
+    alert(error.message || 'Gagal menyimpan kategori.')
   }
 }
 
 async function handleDelete(id, name) {
   if (confirm(`Apakah Anda yakin ingin menghapus kategori "${name}"?`)) {
     try {
-      await apiClient.delete(`/categories/${id}`)
-      await productStore.fetchCategories()
+      await productStore.deleteCategory(id)
     } catch (error) {
       console.error('Gagal menghapus kategori:', error)
-      alert('Gagal menghapus kategori. Mungkin kategori ini masih digunakan oleh produk.')
+      alert(error.message || 'Gagal menghapus kategori. Mungkin kategori ini masih digunakan oleh produk.')
     }
   }
 }

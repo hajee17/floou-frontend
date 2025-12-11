@@ -82,5 +82,20 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  return { user, token, isAuthenticated, isAdmin, login, register, logout, error, isLoading };
+  async function fetchCurrentUser() {
+    try {
+      const response = await apiClient.get("/me");
+      user.value = response.data.user;
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      return response.data.user;
+    } catch (e) {
+      console.error("Failed to fetch current user:", e);
+      if (e.response?.status === 401) {
+        logout();
+      }
+      throw e;
+    }
+  }
+
+  return { user, token, isAuthenticated, isAdmin, login, register, logout, fetchCurrentUser, error, isLoading };
 });

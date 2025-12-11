@@ -87,7 +87,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useProductStore } from '@/stores/product'
-import apiClient from '@/service/api'
 
 const productStore = useProductStore()
 const plantTypes = computed(() => productStore.plantTypes)
@@ -121,26 +120,24 @@ function closeForm() {
 async function handleSubmit() {
   try {
     if (isEditing.value) {
-      await apiClient.put(`/plant-types/${form.value.id}`, { name: form.value.name })
+      await productStore.updatePlantType(form.value.id, { name: form.value.name })
     } else {
-      await apiClient.post('/plant-types', { name: form.value.name })
+      await productStore.createPlantType({ name: form.value.name })
     }
-    await productStore.fetchPlantTypes() // Refresh list
     closeForm()
   } catch (error) {
     console.error('Gagal menyimpan tipe tanaman:', error)
-    alert('Gagal menyimpan tipe tanaman.')
+    alert(error.message || 'Gagal menyimpan tipe tanaman.')
   }
 }
 
 async function handleDelete(id, name) {
   if (confirm(`Apakah Anda yakin ingin menghapus tipe "${name}"?`)) {
     try {
-      await apiClient.delete(`/plant-types/${id}`)
-      await productStore.fetchPlantTypes() // Refresh list
+      await productStore.deletePlantType(id)
     } catch (error) {
       console.error('Gagal menghapus tipe tanaman:', error)
-      alert('Gagal menghapus tipe tanaman. Mungkin tipe ini masih digunakan oleh produk.')
+      alert(error.message || 'Gagal menghapus tipe tanaman. Mungkin tipe ini masih digunakan oleh produk.')
     }
   }
 }

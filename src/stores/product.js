@@ -99,6 +99,72 @@ export const useProductStore = defineStore('product', () => {
     await fetchPlants() // Muat ulang daftar setelah hapus
   }
 
+  // Category CRUD
+  async function createCategory(categoryData) {
+    try {
+      const response = await apiClient.post('/categories', categoryData)
+      await fetchCategories()
+      return response.data.category
+    } catch (e) {
+      console.error('Create Category Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal membuat kategori.')
+    }
+  }
+
+  async function updateCategory(id, categoryData) {
+    try {
+      const response = await apiClient.put(`/categories/${id}`, categoryData)
+      await fetchCategories()
+      return response.data.category
+    } catch (e) {
+      console.error('Update Category Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal memperbarui kategori.')
+    }
+  }
+
+  async function deleteCategory(id) {
+    try {
+      await apiClient.delete(`/categories/${id}`)
+      await fetchCategories()
+    } catch (e) {
+      console.error('Delete Category Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal menghapus kategori.')
+    }
+  }
+
+  // Plant Type CRUD
+  async function createPlantType(plantTypeData) {
+    try {
+      const response = await apiClient.post('/plant-types', plantTypeData)
+      await fetchPlantTypes()
+      return response.data.plant_type
+    } catch (e) {
+      console.error('Create Plant Type Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal membuat tipe tanaman.')
+    }
+  }
+
+  async function updatePlantType(id, plantTypeData) {
+    try {
+      const response = await apiClient.put(`/plant-types/${id}`, plantTypeData)
+      await fetchPlantTypes()
+      return response.data.plant_type
+    } catch (e) {
+      console.error('Update Plant Type Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal memperbarui tipe tanaman.')
+    }
+  }
+
+  async function deletePlantType(id) {
+    try {
+      await apiClient.delete(`/plant-types/${id}`)
+      await fetchPlantTypes()
+    } catch (e) {
+      console.error('Delete Plant Type Error:', e.response)
+      throw new Error(e.response?.data?.message || 'Gagal menghapus tipe tanaman.')
+    }
+  }
+
   return {
     plants,
     plant,
@@ -113,6 +179,12 @@ export const useProductStore = defineStore('product', () => {
     createPlant,
     updatePlant,
     deletePlant,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    createPlantType,
+    updatePlantType,
+    deletePlantType,
     image_base_url,
   }
 })
