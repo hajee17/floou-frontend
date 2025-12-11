@@ -92,23 +92,37 @@
           <div
             v-for="item in order.order_details"
             :key="item.id"
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b last:border-b-0"
+            class="flex flex-col gap-3 pb-3 border-b last:border-b-0"
           >
-            <div class="flex items-center gap-3 sm:gap-4">
-              <img
-                :src="productStore.image_base_url + item.plant.image"
-                :alt="item.plant.name"
-                class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md border flex-shrink-0"
-              />
-              <div>
-                <p class="font-medium text-gray-900 text-sm sm:text-base">{{ item.plant.name }}</p>
-                <p class="text-xs sm:text-sm text-gray-700">
-                  {{ item.quantity }} x Rp {{ parseFloat(item.price).toLocaleString('id-ID') }}
-                </p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <img
+                  :src="productStore.image_base_url + item.plant.image"
+                  :alt="item.plant.name"
+                  class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md border flex-shrink-0"
+                />
+                <div>
+                  <p class="font-medium text-gray-900 text-sm sm:text-base">{{ item.plant.name }}</p>
+                  <p class="text-xs sm:text-sm text-gray-700">
+                    {{ item.quantity }} x Rp {{ parseFloat(item.price).toLocaleString('id-ID') }}
+                  </p>
+                </div>
               </div>
+              <p class="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">
+                Rp {{ (item.quantity * item.price).toLocaleString('id-ID') }}
+              </p>
             </div>
-            <p class="font-semibold text-gray-900 text-sm sm:text-base sm:text-right">
-              Rp {{ (item.quantity * item.price).toLocaleString('id-ID') }}
+
+            <!-- Review Button for Completed Order -->
+            <button
+              v-if="canReview && !hasReviewed(item.plant.id)"
+              @click="openReviewModal(item.plant)"
+              class="text-sm text-green-600 hover:text-green-700 font-medium text-left"
+            >
+              ⭐ Tulis Ulasan untuk produk ini
+            </button>
+            <p v-else-if="canReview && hasReviewed(item.plant.id)" class="text-xs text-gray-500">
+              ✅ Anda sudah memberikan ulasan
             </p>
           </div>
         </div>
@@ -149,6 +163,68 @@
         <p class="text-sm text-red-700 mt-1">{{ order.cancel_reason }}</p>
       </div>
     </div>
+
+    <!-- Review Modal -->
+    <div
+      v-if="showReviewModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeReviewModal"
+    >
+      <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-xl font-bold mb-4">Tulis Ulasan</h3>
+
+        <div class="mb-4">
+          <p class="text-gray-700 font-medium">{{ reviewPlant?.name }}</p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+          <div class="flex gap-2">
+            <button
+              v-for="star in 5"
+              :key="star"
+              @click="reviewData.rating = star"
+              :class="[
+                'text-3xl transition-colors',
+                star <= reviewData.rating ? 'text-yellow-500' : 'text-gray-300'
+              ]"
+            >
+              ★
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Komentar</label>
+          <textarea
+            v-model="reviewData.comment"
+            rows="4"
+            class="w-full border rounded-md px-3 py-2 focus:ring-green-500 focus:border-green-500"
+            placeholder="Bagikan pengalaman Anda dengan produk ini..."
+          ></textarea>
+        </div>
+
+        <div v-if="reviewError" class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded">
+          {{ reviewError }}
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            @click="closeReviewModal"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitReview"
+            :disabled="isSubmittingReview || !reviewData.rating"
+            class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+          >
+            {{ isSubmittingReview ? 'Mengirim...' : 'Kirim Ulasan' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -156,6 +232,7 @@
 import { onMounted, computed, ref } from 'vue'
 import { useOrderStore } from '@/stores/order'
 import { useProductStore } from '@/stores/product'
+import { useReviewStore } from '@/stores/review'
 
 const props = defineProps({
   id: {
@@ -166,9 +243,21 @@ const props = defineProps({
 
 const orderStore = useOrderStore()
 const productStore = useProductStore()
+const reviewStore = useReviewStore()
 const order = computed(() => orderStore.order)
 const isCanceling = ref(false)
 const isDownloadingInvoice = ref(false)
+
+// Review Modal
+const showReviewModal = ref(false)
+const reviewPlant = ref(null)
+const reviewData = ref({
+  rating: 5,
+  comment: ''
+})
+const isSubmittingReview = ref(false)
+const reviewError = ref(null)
+const existingReviews = ref([])
 
 const canCancel = computed(() => {
   return order.value && (order.value.status === 'pending' || order.value.status === 'confirmed')
@@ -178,8 +267,77 @@ const canReview = computed(() => {
   return order.value && order.value.status === 'completed'
 })
 
-onMounted(() => {
-  orderStore.fetchOrder(props.id)
+const hasReviewed = (plantId) => {
+  return existingReviews.value.includes(plantId)
+}
+
+const openReviewModal = (plant) => {
+  reviewPlant.value = plant
+  reviewData.value = {
+    rating: 5,
+    comment: ''
+  }
+  reviewError.value = null
+  showReviewModal.value = true
+}
+
+const closeReviewModal = () => {
+  showReviewModal.value = false
+  reviewPlant.value = null
+  reviewData.value = {
+    rating: 5,
+    comment: ''
+  }
+  reviewError.value = null
+}
+
+const submitReview = async () => {
+  if (!reviewData.value.rating) {
+    reviewError.value = 'Rating harus diisi'
+    return
+  }
+
+  isSubmittingReview.value = true
+  reviewError.value = null
+
+  try {
+    await reviewStore.createReview({
+      plant_id: reviewPlant.value.id,
+      order_id: props.id,
+      rating: reviewData.value.rating,
+      comment: reviewData.value.comment
+    })
+
+    // Add to existing reviews to prevent duplicate
+    existingReviews.value.push(reviewPlant.value.id)
+
+    alert('Ulasan berhasil dikirim! Terima kasih atas feedback Anda.')
+    closeReviewModal()
+  } catch {
+    reviewError.value = reviewStore.error || 'Gagal mengirim ulasan. Silakan coba lagi.'
+  } finally {
+    isSubmittingReview.value = false
+  }
+}
+
+// Load existing reviews when order loads
+const loadExistingReviews = async () => {
+  if (!order.value) return
+
+  try {
+    const myReviewsData = await reviewStore.fetchMyReviews()
+    const orderReviews = myReviewsData.data?.filter(r => r.order_id === order.value.id) || []
+    existingReviews.value = orderReviews.map(r => r.plant_id)
+  } catch (error) {
+    console.error('Error loading existing reviews:', error)
+  }
+}
+
+onMounted(async () => {
+  await orderStore.fetchOrder(props.id)
+  if (canReview.value) {
+    loadExistingReviews()
+  }
 })
 
 const statusClass = (status) => {
@@ -222,7 +380,7 @@ const handleCancelOrder = async () => {
   try {
     await orderStore.cancelOrder(props.id, reason.trim())
     alert('Pesanan berhasil dibatalkan.')
-  } catch (error) {
+  } catch {
     alert(orderStore.error || 'Gagal membatalkan pesanan.')
   } finally {
     isCanceling.value = false
@@ -268,7 +426,7 @@ const handleDownloadInvoice = async () => {
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
 
-  } catch (error) {
+  } catch {
     alert(orderStore.error || 'Gagal mengunduh invoice.')
   } finally {
     isDownloadingInvoice.value = false

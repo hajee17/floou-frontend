@@ -15,9 +15,11 @@ export const useReviewStore = defineStore('review', () => {
     try {
       const response = await apiClient.get(`/plants/${plantId}/reviews`, { params })
       reviews.value = response.data.reviews
+      return response.data.reviews
     } catch (e) {
       error.value = 'Gagal memuat ulasan.'
       console.error('Fetch Plant Reviews Error:', e.response)
+      return { data: [], last_page: 1 }
     } finally {
       isLoading.value = false
     }
@@ -73,9 +75,11 @@ export const useReviewStore = defineStore('review', () => {
     try {
       const response = await apiClient.get('/my-reviews', { params })
       myReviews.value = response.data.reviews
+      return response.data.reviews
     } catch (e) {
       error.value = 'Gagal memuat ulasan Anda.'
       console.error('Fetch My Reviews Error:', e.response)
+      return { data: [] }
     } finally {
       isLoading.value = false
     }
