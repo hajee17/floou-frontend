@@ -94,12 +94,42 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function cancelOrder(id) {
+  async function cancelOrder(id, reason) {
     isLoading.value = true
+    error.value = null
     try {
-      await updateOrderStatus(id, 'canceled')
+      const response = await apiClient.post(`/orders/${id}/cancel`, { reason })
+      const canceledOrder = response.data.order
+
+      if (order.value && order.value.id === id) {
+        order.value = canceledOrder
+      }
+
+      const idx = orders.value.data.findIndex((o) => o.id === id)
+      if (idx > -1) {
+        orders.value.data[idx] = canceledOrder
+      }
+
+      return canceledOrder
     } catch (e) {
-      error.value = e.message
+      error.value = e.response?.data?.message || 'Gagal membatalkan pesanan.'
+      console.error('Cancel Order Error:', e.response)
+      throw e
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getInvoice(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get(`/orders/${id}/invoice`)
+      return response.data.invoice
+    } catch (e) {
+      error.value = 'Gagal mengunduh invoice.'
+      console.error('Get Invoice Error:', e.response)
+      throw e
     } finally {
       isLoading.value = false
     }
@@ -115,5 +145,6 @@ export const useOrderStore = defineStore('order', () => {
     fetchOrder,
     cancelOrder,
     updateOrderStatus,
+    getInvoice,
   }
 })

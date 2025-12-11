@@ -1,18 +1,19 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-6">Riwayat Pesanan Saya</h1>
+  <div class="container mx-auto px-4 py-4 sm:py-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Riwayat Pesanan Saya</h1>
 
-    <div v-if="orderStore.isLoading" class="text-center text-gray-700">Memuat pesanan...</div>
+    <div v-if="orderStore.isLoading" class="text-center text-gray-700 py-8">Memuat pesanan...</div>
 
-    <div v-else-if="orderStore.error" class="text-center text-red-600 font-medium">
+    <div v-else-if="orderStore.error" class="text-center text-red-600 font-medium py-8">
       {{ orderStore.error }}
     </div>
 
-    <div v-else-if="orders.length === 0" class="text-center bg-white p-10 rounded-lg shadow">
-      <p class="text-gray-600 text-lg">Anda belum memiliki pesanan.</p>
+    <div v-else-if="orders.length === 0" class="text-center bg-white p-8 sm:p-10 rounded-lg shadow">
+      <p class="text-gray-600 text-base sm:text-lg">Anda belum memiliki pesanan.</p>
     </div>
 
-    <div v-else class="bg-white rounded-lg shadow overflow-x-auto">
+    <!-- Desktop Table View -->
+    <div v-else class="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
       <table class="min-w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
@@ -61,6 +62,46 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div v-else class="md:hidden space-y-4">
+      <div v-for="order in orders" :key="order.id" class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <p class="text-sm text-gray-600">Order ID</p>
+            <p class="font-bold text-gray-900">#{{ order.id }}</p>
+          </div>
+          <span
+            class="px-2 py-1 text-xs font-semibold rounded-full capitalize"
+            :class="statusClass(order.status)"
+          >
+            {{ order.status }}
+          </span>
+        </div>
+
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Tanggal:</span>
+            <span class="text-gray-900 font-medium">
+              {{ new Date(order.created_at).toLocaleDateString('id-ID') }}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Total:</span>
+            <span class="text-gray-900 font-bold">
+              Rp {{ parseFloat(order.total_price).toLocaleString('id-ID') }}
+            </span>
+          </div>
+        </div>
+
+        <RouterLink
+          :to="`/pesanan/${order.id}`"
+          class="mt-4 block w-full text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition-colors"
+        >
+          Lihat Detail
+        </RouterLink>
+      </div>
     </div>
   </div>
 </template>

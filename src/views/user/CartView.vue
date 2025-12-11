@@ -122,8 +122,11 @@
             class="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:ring-green-500 focus:border-green-500 shadow-sm"
           >
             <option value="standard">Standard (Rp 20.000)</option>
-            <option value="express">Express (Rp 35.000)</option>
+            <option value="express">Express (Rp 50.000)</option>
           </select>
+          <p class="text-xs text-gray-600 mt-1">
+            * Biaya pengiriman akan ditambahkan ke total
+          </p>
         </div>
 
         <div class="mt-4">
