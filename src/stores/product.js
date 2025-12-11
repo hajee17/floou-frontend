@@ -11,18 +11,18 @@ export const useProductStore = defineStore('product', () => {
   const isLoading = ref(false)
   const error = ref(null)
 
-  // URL dasar untuk gambar, tanpa /api/
-  const image_base_url = import.meta.env.VITE_IMAGE_STORAGE_URL + '/'
+  // Base URL for images
+  const image_base_url = import.meta.env.VITE_IMAGE_STORAGE_URL
 
   async function fetchPlants(params = {}) {
     isLoading.value = true
     error.value = null
     try {
       const response = await apiClient.get('/plants', { params })
-      // Menambahkan URL lengkap untuk gambar
+      // Backend already includes image_url
       response.data.plants.data = response.data.plants.data.map((p) => ({
         ...p,
-        imageUrl: image_base_url + p.image,
+        imageUrl: p.image_url || (image_base_url + '/' + p.image),
       }))
       plants.value = response.data.plants
     } catch (e) {
@@ -41,7 +41,12 @@ export const useProductStore = defineStore('product', () => {
       console.log('Meminta data:', `/plants/${idOrSlug}`)
       const response = await apiClient.get(`/plants/${idOrSlug}`)
       console.log('Data diterima:', response.data)
-      response.data.plant.imageUrl = image_base_url + response.data.plant.image
+      // Backend already includes image_url, but we can override if needed
+      if (response.data.plant.image && !response.data.plant.image_url) {
+        response.data.plant.imageUrl = image_base_url + '/' + response.data.plant.image
+      } else {
+        response.data.plant.imageUrl = response.data.plant.image_url
+      }
       plant.value = response.data.plant
     } catch (e) {
       error.value = 'Tanaman tidak ditemukan.'

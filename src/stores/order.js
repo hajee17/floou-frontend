@@ -19,7 +19,10 @@ export const useOrderStore = defineStore('order', () => {
 
     try {
       const payload = {
+        recipient_name: orderDetails.recipient_name,
+        recipient_phone: orderDetails.recipient_phone,
         shipping_address: orderDetails.shipping_address,
+        shipping_method: orderDetails.shipping_method || 'standard',
         notes: orderDetails.notes || '',
         items: cartStore.items.map((item) => ({
           plant_id: item.id,

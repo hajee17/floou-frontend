@@ -5,7 +5,7 @@
     <div v-if="isLoading" class="text-center text-gray-700">Loading dashboard data...</div>
     <div v-else-if="error" class="text-center text-red-500">{{ error }}</div>
 
-    <div v-else-if="stats" class="space-y-10">
+    <div v-else-if="statistics" class="space-y-10">
       <!-- Statistik -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-green-600 rounded-xl p-6 text-white flex items-center gap-6">
@@ -14,7 +14,7 @@
           </div>
           <div>
             <p class="text-sm text-white/90">Total Pengguna</p>
-            <p class="text-2xl font-bold text-white">{{ stats.statistics.total_users }}</p>
+            <p class="text-2xl font-bold text-white">{{ statistics.total_users }}</p>
           </div>
         </div>
         <div class="bg-blue-600 rounded-xl p-6 text-white flex items-center gap-6">
@@ -23,7 +23,7 @@
           </div>
           <div>
             <p class="text-sm text-white/90">Total Tanaman</p>
-            <p class="text-2xl font-bold text-white">{{ stats.statistics.total_plants }}</p>
+            <p class="text-2xl font-bold text-white">{{ statistics.total_plants }}</p>
           </div>
         </div>
         <div class="bg-yellow-500 rounded-xl p-6 text-white flex items-center gap-6">
@@ -32,7 +32,7 @@
           </div>
           <div>
             <p class="text-sm text-white/90">Total Pesanan</p>
-            <p class="text-2xl font-bold text-white">{{ stats.statistics.total_orders }}</p>
+            <p class="text-2xl font-bold text-white">{{ statistics.total_orders }}</p>
           </div>
         </div>
       </div>
@@ -52,7 +52,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="order in stats.recent_orders"
+                v-for="order in recentOrders"
                 :key="order.id"
                 class="border-b hover:bg-gray-50 transition"
               >
@@ -76,7 +76,7 @@
           <h2 class="font-bold text-lg mb-4 text-gray-800">Stok Menipis</h2>
           <ul>
             <li
-              v-for="plant in stats.low_stock_plants"
+              v-for="plant in lowStockPlants"
               :key="plant.id"
               class="flex justify-between items-center py-2 border-b text-gray-700"
             >
@@ -91,29 +91,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import apiClient from '@/service/api'
+import { onMounted } from 'vue'
+import { useDashboardStore } from '@/stores/dashboard'
 import { UsersIcon, ArchiveBoxIcon, ShoppingCartIcon } from '@heroicons/vue/24/outline'
 
-const stats = ref(null)
-const isLoading = ref(true)
-const error = ref(null)
+const dashboardStore = useDashboardStore()
+const { statistics, lowStockPlants, recentOrders, isLoading, error } = dashboardStore
 
-async function fetchDashboardData() {
-  isLoading.value = true
-  error.value = null
-  try {
-    const response = await apiClient.get('/dashboard')
-    stats.value = response.data
-  } catch (e) {
-    error.value = 'Gagal memuat data dashboard.'
-    console.error(e)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(fetchDashboardData)
+onMounted(() => {
+  dashboardStore.fetchDashboardData()
+})
 
 const statusClass = (status) => {
   switch (status) {

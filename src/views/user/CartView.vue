@@ -74,6 +74,32 @@
         </div>
 
         <div class="mt-6">
+          <label for="recipient_name" class="font-semibold block mb-2 text-gray-700">
+            Nama Penerima
+          </label>
+          <input
+            v-model="recipient_name"
+            id="recipient_name"
+            type="text"
+            class="w-full border rounded-md px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:ring-green-500 focus:border-green-500 shadow-sm"
+            placeholder="Nama penerima"
+          />
+        </div>
+
+        <div class="mt-4">
+          <label for="recipient_phone" class="font-semibold block mb-2 text-gray-700">
+            Nomor Telepon Penerima
+          </label>
+          <input
+            v-model="recipient_phone"
+            id="recipient_phone"
+            type="text"
+            class="w-full border rounded-md px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:ring-green-500 focus:border-green-500 shadow-sm"
+            placeholder="Nomor telepon"
+          />
+        </div>
+
+        <div class="mt-4">
           <label for="shipping_address" class="font-semibold block mb-2 text-gray-700">
             Alamat Pengiriman
           </label>
@@ -84,6 +110,20 @@
             class="w-full border rounded-md px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:ring-green-500 focus:border-green-500 shadow-sm"
             placeholder="Masukkan alamat lengkap Anda"
           ></textarea>
+        </div>
+
+        <div class="mt-4">
+          <label for="shipping_method" class="font-semibold block mb-2 text-gray-700">
+            Metode Pengiriman
+          </label>
+          <select
+            v-model="shipping_method"
+            id="shipping_method"
+            class="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:ring-green-500 focus:border-green-500 shadow-sm"
+          >
+            <option value="standard">Standard (Rp 20.000)</option>
+            <option value="express">Express (Rp 35.000)</option>
+          </select>
         </div>
 
         <div class="mt-4">
@@ -128,20 +168,30 @@ const cart = useCartStore()
 const orderStore = useOrderStore()
 const authStore = useAuthStore()
 
+const recipient_name = ref(authStore.user?.name || '')
+const recipient_phone = ref(authStore.user?.phone || '')
 const shipping_address = ref(authStore.user?.address || '')
+const shipping_method = ref('standard')
 const notes = ref('')
 
 const isCheckoutReady = computed(
-  () => shipping_address.value.trim() !== '' && cart.items.length > 0,
+  () =>
+    recipient_name.value.trim() !== '' &&
+    recipient_phone.value.trim() !== '' &&
+    shipping_address.value.trim() !== '' &&
+    cart.items.length > 0,
 )
 
 async function handleCheckout() {
   if (!isCheckoutReady.value) {
-    alert('Mohon isi alamat pengiriman.')
+    alert('Mohon lengkapi semua field yang diperlukan.')
     return
   }
   await orderStore.createOrder({
+    recipient_name: recipient_name.value,
+    recipient_phone: recipient_phone.value,
     shipping_address: shipping_address.value,
+    shipping_method: shipping_method.value,
     notes: notes.value,
   })
 }
