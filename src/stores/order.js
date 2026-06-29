@@ -19,7 +19,10 @@ export const useOrderStore = defineStore('order', () => {
 
     try {
       const payload = {
+        recipient_name: orderDetails.recipient_name,
+        recipient_phone: orderDetails.recipient_phone,
         shipping_address: orderDetails.shipping_address,
+        shipping_method: orderDetails.shipping_method || 'standard',
         notes: orderDetails.notes || '',
         items: cartStore.items.map((item) => ({
           plant_id: item.id,
@@ -44,7 +47,6 @@ export const useOrderStore = defineStore('order', () => {
     error.value = null
     try {
       const response = await apiClient.get('/orders', { params })
-
       orders.value = response.data.orders || { data: [], meta: {}, links: {} }
     } catch (e) {
       error.value = 'Gagal memuat riwayat pesanan.'
@@ -91,12 +93,88 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function cancelOrder(id) {
+  async function cancelOrder(id, reason) {
     isLoading.value = true
+    error.value = null
     try {
-      await updateOrderStatus(id, 'canceled')
+      const response = await apiClient.post(`/orders/${id}/cancel`, { reason })
+      const canceledOrder = response.data.order
+
+      if (order.value && order.value.id === id) {
+        order.value = canceledOrder
+      }
+
+      const idx = orders.value.data.findIndex((o) => o.id === id)
+      if (idx > -1) {
+        orders.value.data[idx] = canceledOrder
+      }
+
+      return canceledOrder
     } catch (e) {
-      error.value = e.message
+      error.value = e.response?.data?.message || 'Gagal membatalkan pesanan.'
+      console.error('Cancel Order Error:', e.response)
+      throw e
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getInvoice(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get(`/orders/${id}/invoice`)
+      return response.data.invoice
+    } catch (e) {
+      error.value = 'Gagal mengunduh invoice.'
+      console.error('Get Invoice Error:', e.response)
+      throw e
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Admin order management
+  async function fetchAdminOrders(params = {}) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get('/admin/orders', { params })
+      orders.value = response.data.orders || { data: [], meta: {}, links: {} }
+    } catch (e) {
+      error.value = 'Gagal memuat daftar pesanan.'
+      console.error('Fetch Admin Orders Error:', e.response)
+      orders.value = { data: [], meta: {}, links: {} }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateAdminOrder(id, orderData) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await apiClient.put(`/admin/orders/${id}`, orderData)
+      return response.data.order
+    } catch (e) {
+      error.value = e.response?.data?.message || 'Gagal memperbarui pesanan.'
+      console.error('Update Admin Order Error:', e.response)
+      throw e
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteAdminOrder(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+      await apiClient.delete(`/admin/orders/${id}`)
+      orders.value.data = orders.value.data.filter(o => o.id !== id)
+    } catch (e) {
+      error.value = e.response?.data?.message || 'Gagal menghapus pesanan.'
+      console.error('Delete Admin Order Error:', e.response)
+      throw e
     } finally {
       isLoading.value = false
     }
@@ -112,5 +190,9 @@ export const useOrderStore = defineStore('order', () => {
     fetchOrder,
     cancelOrder,
     updateOrderStatus,
+    getInvoice,
+    fetchAdminOrders,
+    updateAdminOrder,
+    deleteAdminOrder,
   }
 })

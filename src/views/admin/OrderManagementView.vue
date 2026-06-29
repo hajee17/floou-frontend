@@ -87,19 +87,31 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import { useOrderStore } from '@/stores/order'
+import { useAuthStore } from '@/stores/auth'
 
 const orderStore = useOrderStore()
+const authStore = useAuthStore()
 const orders = computed(() => orderStore.orders.data || [])
 
 onMounted(() => {
-  orderStore.fetchOrders()
+  // Use admin endpoint for admin users
+  if (authStore.isAdmin) {
+    orderStore.fetchAdminOrders()
+  } else {
+    orderStore.fetchOrders()
+  }
 })
 
 async function handleStatusChange(orderId, newStatus) {
   try {
     await orderStore.updateOrderStatus(orderId, newStatus)
     alert(`Status pesanan #${orderId} berhasil diubah menjadi ${newStatus}.`)
-    orderStore.fetchOrders({ page: orderStore.orders.current_page })
+    // Refresh with current page
+    if (authStore.isAdmin) {
+      orderStore.fetchAdminOrders({ page: orderStore.orders.current_page })
+    } else {
+      orderStore.fetchOrders({ page: orderStore.orders.current_page })
+    }
   } catch (error) {
     alert('Gagal mengubah status pesanan.')
     console.error(error)
@@ -109,6 +121,10 @@ async function handleStatusChange(orderId, newStatus) {
 function goToPage(url) {
   if (!url) return
   const pageNumber = new URL(url).searchParams.get('page')
-  orderStore.fetchOrders({ page: pageNumber })
+  if (authStore.isAdmin) {
+    orderStore.fetchAdminOrders({ page: pageNumber })
+  } else {
+    orderStore.fetchOrders({ page: pageNumber })
+  }
 }
 </script>

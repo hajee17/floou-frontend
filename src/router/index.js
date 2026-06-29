@@ -10,6 +10,9 @@ import ProductDetailView from '../views/user/ProductDetailView.vue'
 import CartView from '../views/user/CartView.vue'
 import OrderHistoryView from '../views/user/OrderHistoryView.vue'
 import OrderDetailView from '../views/user/OrderDetailView.vue'
+import NotificationView from '../views/user/NotificationView.vue'
+import MyReviewsView from '../views/user/MyReviewsView.vue'
+import ProfileView from '../views/user/ProfileView.vue'
 
 import DashboardView from '../views/admin/DashboardView.vue'
 import ProductManagementView from '../views/admin/ProductManagementView.vue'
@@ -17,8 +20,7 @@ import ProductFormView from '../views/admin/ProductFormView.vue'
 import OrderManagementView from '../views/admin/OrderManagementView.vue'
 import CategoryManagementView from '../views/admin/CategoryManagementView.vue'
 import PlantTypeManagementView from '../views/admin/PlantTypeManagementView.vue'
-// Import KelolaAkunView dihapus dari sini
-// import KelolaAkunView from '../views/admin/KelolaAkunView.vue'
+import KelolaAkunView from '../views/admin/KelolaAkunView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +44,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
       props: true,
     },
+    {
+      path: '/notifikasi',
+      name: 'notifications',
+      component: NotificationView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/ulasan-saya',
+      name: 'my-reviews',
+      component: MyReviewsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/profil',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true },
+    },
 
     // Rute Admin
     {
@@ -62,8 +82,7 @@ const router = createRouter({
         { path: 'pesanan', name: 'admin-orders', component: OrderManagementView },
         { path: 'kategori', name: 'admin-categories', component: CategoryManagementView },
         { path: 'tipe-tanaman', name: 'admin-plant-types', component: PlantTypeManagementView },
-        // Route untuk 'kelola-akun' telah dihapus dari array children ini
-        // { path: 'kelola-akun', name: 'admin-accounts', component: KelolaAkunView },
+        { path: 'kelola-akun', name: 'admin-accounts', component: KelolaAkunView },
       ],
     },
 

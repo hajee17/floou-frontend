@@ -18,12 +18,12 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
     try {
       const response = await apiClient.post("/login", credentials);
-      const { access_token, user: userData } = response.data;
+      const { token: authToken, user: userData } = response.data;
 
-      localStorage.setItem("authToken", access_token);
+      localStorage.setItem("authToken", authToken);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      token.value = access_token;
+      token.value = authToken;
       user.value = userData;
 
       // Redirect berdasarkan role
@@ -45,12 +45,12 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
     try {
       const response = await apiClient.post("/register", userData);
-      const { access_token, user: newUserData } = response.data;
+      const { token: authToken, user: newUserData } = response.data;
 
-      localStorage.setItem("authToken", access_token);
+      localStorage.setItem("authToken", authToken);
       localStorage.setItem("user", JSON.stringify(newUserData));
 
-      token.value = access_token;
+      token.value = authToken;
       user.value = newUserData;
 
       router.push({ name: "home" });
@@ -82,5 +82,20 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  return { user, token, isAuthenticated, isAdmin, login, register, logout, error, isLoading };
+  async function fetchCurrentUser() {
+    try {
+      const response = await apiClient.get("/me");
+      user.value = response.data.user;
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      return response.data.user;
+    } catch (e) {
+      console.error("Failed to fetch current user:", e);
+      if (e.response?.status === 401) {
+        logout();
+      }
+      throw e;
+    }
+  }
+
+  return { user, token, isAuthenticated, isAdmin, login, register, logout, fetchCurrentUser, error, isLoading };
 });
